@@ -2,262 +2,197 @@ package WWW::YouTube::Download;
 
 use strict;
 use warnings;
-use Carp;
-no Carp::Assert;
+use 5.008001;
+
+our $VERSION = '0.11';
+
+use CGI ();
+use Carp ();
+use URI ();
 use LWP::UserAgent;
-use URI::Escape;
+use URI::Escape qw/uri_unescape/;
 
-require Exporter;
+use constant DEFAULT_FMT => 18;
 
-our @ISA = qw(Exporter);
+my $ua = LWP::UserAgent->new;
 
-our %EXPORT_TAGS = ( 'all' => [ qw(
-    get_id  save
-) ] );
+my $info = 'http://www.youtube.com/get_video_info?video_id=';
+my $down = "http://www.youtube.com/get_video?video_id=%s&t=%s";
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+sub new {
+    my $class = shift;
+    bless { ua => $ua, @_ }, $class;
+}
 
-our @EXPORT = qw(
-);
+for my $name (qw[video_id video_url title fmt suffix]) {
+    no strict 'refs';
+    *{"get_$name"} = sub {
+        my $self = shift;
+        my $video_id = shift || Carp::croak "Usage: $self->get_$name(\$video_id|\$watch_url)";
+        
+        my $data = $self->prepare_download($video_id);
+        return $data->{$name};
+    };
+}
 
-our $VERSION = '0.02';
-our $IS_RIOT = 0;
+sub download {
+    my $self = shift;
+    my $video_id = shift || Carp::croak "Usage: $self->download('[video_id|video_url]')";
+    my $args = shift || {};
+    
+    my $data = $self->prepare_download($video_id);
+    
+    my $fmt = $args->{fmt} || $data->{fmt};
+    my $video_url = sprintf "%s&fmt=%d", $data->{video_url}, $fmt;
+    my $file_name = $args->{file_name} || $data->{video_id} . _suffix($fmt);
+    
+    $args->{cb} = $self->_default_cb({
+        file_name => $file_name,
+        verbose   => $args->{verbose},
+    }) unless ref $args->{cb} eq 'CODE';
+    
+    my $res = $self->ua->get($video_url, ':content_cb' => $args->{cb});
+    Carp::croak 'Download failed: ', $res->status_line if $res->is_error;
+}
 
-my $BASE_URL         = "http://www.youtube.com/";
-my $INFO_SCRIPT_NAME = "get_video_info";
-my $GET_SCRIPT_NAME  = "get_video.php";
-my $ID_LIKE          = "[-_\\d\\w]{11}";
-my @INVALID_CHARS    = qw(
-    \\\\ / : * " ? < > |
-);
+sub _default_cb {
+    my $self = shift;
+    my $args = shift;
+    
+    open my $wfh, '>', $args->{file_name} or die $args->{file_name}, " $!";
+    binmode $wfh;
+    return sub {
+        my ($chunk, $res, $proto) = @_;
+        print $wfh $chunk; # write file
+        
+        if ($self->{verbose} || $args->{verbose}) {
+            my $size = tell $wfh;
+            if (my $total = $res->header('Content-Length')) {
+                printf "%d/%d (%f%%)\r", $size, $total, $size / $total * 100;
+            }
+            else {
+                printf "%d/Unknown bytes\r", $size;
+            }
+        }
+    };
+}
 
-my $ua = LWP::UserAgent->new();
-$ua->timeout(30);
+sub prepare_download {
+    my $self = shift;
+    my $video_id = shift || Carp::croak "Usage: $self->prepare_download('[video_id|watch_url]')";
+    $video_id = _video_id($video_id);
+    
+    return $self->{cache}{$video_id} if ref $self->{cache}{$video_id} eq 'HASH';
+    
+    my $res = $self->ua->get("$info$video_id");
+    
+    local $Carp::CarpLevel = 1;
+    Carp::croak "get info failed. status: ", $res->status_line if $res->is_error;
+    
+    my $params = CGI->new(uri_unescape $res->content);
+    Carp::croak "$video_id not found" if $params->param('status') ne 'ok';
+    
+    my $fmt = ( sort { $b <=> $a } $params->param('itag') )[0] || DEFAULT_FMT;
+    
+    return $self->{cache}{$video_id} = +{
+        video_id  => $video_id,
+        video_url => sprintf($down, $video_id, $params->param('token')),
+        title     => $params->param('title'),
+        fmt       => $fmt,
+        suffix    => _suffix($fmt),
+    };
+}
+
+sub ua {
+    my $self = shift;
+    my $ua = shift || return $self->{ua};
+    Carp::croak "Usage: $self->ua(\$LWP_LIKE_OBJECT)" unless eval { $ua->isa('LWP::UserAgent') };
+    $self->{ua} = $ua;
+}
+
+sub _suffix {
+    my $fmt = shift;
+    return $fmt =~ /18|22|37/ ? '.mp4'
+         : $fmt =~ /13|17/    ? '.3gp'
+         :                      '.flv'
+    ;
+}
+
+sub _video_id {
+    my $video_id = shift;
+    $video_id =~ /watch\?v=([^&]+)/;
+    return $1 || $video_id;
+}
+
+1;
+__END__
 
 =head1 NAME
 
-WWW::YouTube::Download - Get flv video from YouTube
+WWW::YouTube::Download - Verry simpliy YouTube video download interface.
 
 =head1 SYNOPSIS
 
-  use WWW::YouTube::Download qw( get_id save );
-  my $url = "http://www.youtube.com/watch?v=xxxxxxxxxxx";
-  my $id  = get_id($url);
-  my $saved_name = save($id);
-  # Specify name of video file.
-  save($id, "video.flv");
-
-  # For debug option.
-  $WWW::YouTube::Download::IS_RIOT = 1;
+  use WWW::YouTube::Download;
+  
+  my $client = WWW::YouTube::Download->new;
+  $client->download($video_id);
+  
+  my $video_url = $client->get_video_url($video_id);
+  my $title     = $client->get_title($video_id);     # maybe encoded utf8 string.
+  my $fmt       = $client->get_fmt($video_id);       # maybe highest quality.
 
 =head1 DESCRIPTION
 
-This module allows you to download vide from YouTube.
+WWW::YouTube::Download is a download video from YouTube video.
 
-ID is necessary to download the video.
-The ID can find from URL of video's link.
-
-The URL of YouTube is "http://www.youtube.com/".
-
-=head2 EXPORT
-
-None by default.
+=head1 METHODS
 
 =over
 
-=item get_id("http://www.youtube.com/watch?v=xxxxxxxxxxx")
+=item B<new()>
 
-This function parses URL and returns ID.
+  $client = WWW::YouTube::Download->new;
 
-=cut
+=item B<download($video_id [, \%args])>
 
-sub get_id {
-    my $url = shift;
-    if (not defined $url) {
-        carp "URL was not found.";
-        return;
-    }
+  $client->download($video_id);
+  $client->download($video_id, {
+      fmt       => 37,
+      file_name => 'sample.mp4', # save file name
+  });
+  $client->download($video_id, {
+      cb => \&callback,
+  });
+  
+B<\&callback> details SEE ALSO L<LWP::UserAgent> ':content_db'.
 
-    if ($url =~ m{ v= ($ID_LIKE) }msx) {
-        my $id = $1;
-        return $id;
-    }
-    elsif ($url =~ m{\A \s* ($ID_LIKE) \s* \z}msx) {
-        my $id = $1;
-        return $id;
-    }
-    else {
-        return;
-    }
-}
+=item B<ua([$ua])>
 
-sub _is_id_valid {
-    my $id = shift;
+  $self->ua->agent();
+  $self->ua($LWP_LIKE_OBJECT);
 
-    if ($id =~ m{\A $ID_LIKE \z}msx) {
-        return 1;
-    }
-    else {
-        return;
-    }
-}
+=item B<get_video_url($video_id)>
 
-=item save($id)
+=item B<get_title($video_id)>
 
-This function saves the video.
-Returns file name that was saved.
-
-If second parameter is passed, it is used to saving file name.
-
-=cut
-
-sub save {
-    my ($id, $filename) = @_;
-    if (not defined $id) {
-        carp "ID was not found.";
-        return;
-    }
-    elsif (not _is_id_valid($id)) {
-        $id = get_id($id);
-        unless ($id) {
-            carp "ID is invalid.";
-            return;
-        }
-    }
-    if (defined $filename) {
-        my $new_name = _validate_file_name($filename);
-
-        if ($filename ne $new_name) {
-            $filename = $new_name;
-            warn "The file name($filename) was replaced.\n",
-                "That was named ($new_name).\n";
-        }
-
-        if (-e $filename) {
-            warn "The file name($filename) already exists.\n";
-            return;
-        }
-    }
-
-    my %params = _get_informations($id);
-    return
-        unless %params;
-
-    my $url = $BASE_URL . $GET_SCRIPT_NAME . "?"
-        . "video_id=" . $params{video_id} . "&t=" . $params{token};
-
-    unless ($filename) {
-        $filename = _validate_file_name($params{title}.".flv");
-    }
-    if (-e $filename) {
-        warn "The file name($filename) already exists.\n";
-        return;
-    }
-
-    warn "The file name was set to $filename.\n"
-        if $IS_RIOT;
-
-    warn "Start downloading.\n"
-        if $IS_RIOT;
-
-    my $res = $ua->get($url, 
-        ":content_file" => $filename,
-    );
-
-    if (not $res->is_success()) {
-        warn "Could not get video that has video_id=", $params{video_id}, "\n"
-            ,"(", $res->status_line(), ")\n";
-        return;
-    }
-    elsif (!-e $filename) {
-        warn "Failed saving.";
-        return;
-    }
-    warn "Got video that was named: ($filename).\n"
-        if $IS_RIOT;
-
-    return $filename;
-}
-
-sub _get_informations {
-    my $id = shift;
-    assert( defined $id )
-        if DEBUG;
-    assert( _is_id_valid($id) )
-        if DEBUG;
-
-    my $url = $BASE_URL . $INFO_SCRIPT_NAME . "?"
-        . "video_id=" . $id;
-
-    warn "Start getting informations.\n"
-        if $IS_RIOT;
-
-    my $res = $ua->get($url);
-
-    unless ($res->is_success()) {
-        warn "Could not get informations that is video_id=", $id, "\n"
-            , "(", $res->status_line(), ")\n";
-        return;
-    }
-
-    my %params = ();
-
-    ADD_PARAM_IF_EQUAL_EXISTS:
-    foreach my $element ( split("[;&]", $res->content()) ) {
-        next ADD_PARAM_IF_EQUAL_EXISTS
-            unless $element =~ m{ [=] }msx;
-            
-        my ($key, $value) = split "[=]", $element;
-        $params{$key} = $value;
-    }
-
-    warn "Could not get title.\n"
-        unless $params{title};
-
-    $params{title} = uri_unescape($params{title});
-    warn "The title is: ($params{title}).\n"
-        if $IS_RIOT;
-
-    unless (exists $params{token} and defined $params{token}) {
-        warn "Could not get token from video_id=".$id;
-        return;
-    }
-
-    warn "Got informations.\n"
-        if $IS_RIOT;
-
-    return %params;
-}
-
-sub _validate_file_name {
-    my $name = shift;
-    assert( defined $name )
-        if DEBUG;
-
-    ERASE_INVALID_CHARACTERS:
-    foreach my $char (@INVALID_CHARS) {
-        $name =~ s{[$char]}{}gmsx;
-    }
-
-    return $name;
-}
+=item B<get_fmt($video_id)>
 
 =back
 
-=head1 SEE ALSO
-
 =head1 AUTHOR
 
-Kuniyoshi Kouji, E<lt>kuniyoshi.kouji@indigo.plala.or.jpE<gt>
+Yuji Shimada
 
-=head1 COPYRIGHT AND LICENSE
+=head1 CONTRIBUTORS
 
-Copyright (C) 2009 by Kuniyoshi Kouji
+yusukebe
+
+=head1 SEE ALSO
+
+=head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
-at your option, any later version of Perl 5 you may have available.
+it under the same terms as Perl itself.
 
 =cut
-1;
-

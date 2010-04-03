@@ -1,28 +1,27 @@
-WWW-YouTube-Download version 0.02
-=================================
+This is Perl module WWW::YouTube::Download.
 
 INSTALLATION
 
-To install this module type the following:
+WWW::YouTube::Download installation is straightforward. If your CPAN shell is set up,
+you should just be able to do
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+    % cpan WWW::YouTube::Download
 
-DEPENDENCIES
+Download it, unpack it, then build it as per the usual:
 
-This module requires these other modules and libraries:
+    % perl Makefile.PL
+    % make && make test
 
-  - Carp::Assert
-  - URI::Escape
+Then install it:
 
-COPYRIGHT AND LICENCE
+    % make install
 
-Copyright (C) 2009 by Kuniyoshi Kouji
+DOCUMENTATION
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
-at your option, any later version of Perl 5 you may have available.
+WWW::YouTube::Download documentation is available as in POD. So you can do:
 
+    % perldoc WWW::YouTube::Download
 
+to read the documentation online with your favorite pager.
+
+Yuji Shimada

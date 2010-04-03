@@ -1,13 +1,29 @@
---- #YAML:1.0
-name:                WWW-YouTube-Download
-version:             0.02
-abstract:            Get flv video from YouTube
-license:             ~
-author:              
-    - prigel <prigel@>
-generated_by:        ExtUtils::MakeMaker version 6.42
-distribution_type:   module
-requires:     
+---
+abstract: 'Verry simpliy YouTube video download interface.'
+author:
+  - 'Yuji Shimada'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.93'
+license: perl
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: WWW-YouTube-Download
+no_index:
+  directory:
+    - inc
+    - t
+    - xt
+requires:
+  CGI: 0
+  LWP: 0
+  URI::Escape: 0
+  perl: 5.8.1
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.11
