@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use CGI ();
 use Carp ();
@@ -14,17 +14,17 @@ use URI::Escape qw/uri_unescape/;
 
 use constant DEFAULT_FMT => 18;
 
-my $ua = LWP::UserAgent->new;
-
 my $info = 'http://www.youtube.com/get_video_info?video_id=';
 my $down = "http://www.youtube.com/get_video?video_id=%s&t=%s";
 
 sub new {
     my $class = shift;
-    bless { ua => $ua, @_ }, $class;
+    my %args = @_;
+    $args{ua} = LWP::UserAgent->new unless exists $args{ua};
+    bless \%args, $class;
 }
 
-for my $name (qw[video_id video_url title fmt suffix]) {
+for my $name (qw[video_id video_url title fmt fmt_list suffix]) {
     no strict 'refs';
     *{"get_$name"} = sub {
         my $self = shift;
@@ -92,13 +92,15 @@ sub prepare_download {
     my $params = CGI->new(uri_unescape $res->content);
     Carp::croak "$video_id not found" if $params->param('status') ne 'ok';
     
-    my $fmt = ( sort { $b <=> $a } $params->param('itag') )[0] || DEFAULT_FMT;
+    my $fmt_list = [ do { my %h; sort { $b <=> $a } grep { !$h{$_}++ } ($params->param('itag'), DEFAULT_FMT) } ];
+    my $fmt = $fmt_list->[0];
     
     return $self->{cache}{$video_id} = +{
         video_id  => $video_id,
         video_url => sprintf($down, $video_id, $params->param('token')),
         title     => $params->param('title'),
         fmt       => $fmt,
+        fmt_list  => $fmt_list,
         suffix    => _suffix($fmt),
     };
 }
