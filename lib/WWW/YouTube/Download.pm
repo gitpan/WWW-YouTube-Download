@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use CGI ();
 use Carp ();
@@ -146,7 +146,7 @@ WWW::YouTube::Download - Verry simpliy YouTube video download interface.
 
 =head1 DESCRIPTION
 
-WWW::YouTube::Download is a download video from YouTube video.
+WWW::YouTube::Download is a download video from YouTube.
 
 =head1 METHODS
 
@@ -155,6 +155,8 @@ WWW::YouTube::Download is a download video from YouTube video.
 =item B<new()>
 
   $client = WWW::YouTube::Download->new;
+
+Creates a WWW::YouTube::Donwload instance.
 
 =item B<download($video_id [, \%args])>
 
@@ -166,13 +168,17 @@ WWW::YouTube::Download is a download video from YouTube video.
   $client->download($video_id, {
       cb => \&callback,
   });
-  
-B<\&callback> details SEE ALSO L<LWP::UserAgent> ':content_db'.
+
+Download the video file.
+The first parameter is passed to YouTube video url.
+B<\&callback> details SEE ALSO L<LWP::UserAgent> ':content_cb'.
 
 =item B<ua([$ua])>
 
   $self->ua->agent();
   $self->ua($LWP_LIKE_OBJECT);
+
+Sets and gets LWP::UserAgent object.
 
 =item B<get_video_url($video_id)>
 
@@ -191,6 +197,8 @@ Yuji Shimada
 yusukebe
 
 =head1 SEE ALSO
+
+L<WWW::NicoVideo::Download>
 
 =head1 LICENSE
 

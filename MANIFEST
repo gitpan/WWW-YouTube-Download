@@ -1,5 +1,6 @@
 Changes
 eg/cb.pl
+eg/parallel.pl
 inc/Module/Install.pm
 inc/Module/Install/AuthorTests.pm
 inc/Module/Install/Base.pm
