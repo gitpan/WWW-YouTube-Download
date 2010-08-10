@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 use CGI ();
 use Carp ();
@@ -15,7 +15,7 @@ use URI::Escape qw/uri_unescape/;
 use constant DEFAULT_FMT => 18;
 
 my $info = 'http://www.youtube.com/get_video_info?video_id=';
-my $down = "http://www.youtube.com/get_video?video_id=%s&t=%s";
+my $down = "http://www.youtube.com/get_video?asv=2&video_id=%s&t=%s";
 
 sub new {
     my $class = shift;
