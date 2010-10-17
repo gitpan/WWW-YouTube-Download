@@ -1,5 +1,5 @@
 ---
-abstract: 'Verry simpliy YouTube video download interface.'
+abstract: 'Very simply YouTube video download interface.'
 author:
   - 'Yuji Shimada'
 build_requires:
@@ -26,4 +26,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/xaicron/p5-www-youtube-download.git
-version: 0.15
+version: 0.16
