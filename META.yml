@@ -26,5 +26,5 @@ requires:
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
-  repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.20
+  repository: git://github.com/xaicron/p5-www-youtube-download.git
+version: 0.21

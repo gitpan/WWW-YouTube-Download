@@ -15,12 +15,13 @@ inc/Module/Install/WriteAll.pm
 inc/Test/More.pm
 lib/WWW/YouTube/Download.pm
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
 t/01_data.txt
 t/01_simple.t
+t/internal/video_id.t
 xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t
