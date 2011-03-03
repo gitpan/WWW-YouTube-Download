@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 use Carp ();
 use URI ();
@@ -167,7 +167,7 @@ sub _get_args {
 
     my $data;
     for (split "\n", $content) {
-        if ($_ && /videoplayback/ && /signature/ && !/HTML/) {
+        if ($_ && /var\s+swfConfig/ && /videoplayback/ && /signature/ && !/HTML/) {
             my ($json) = $_ =~ /^[^{]+(.*)[^}]+$/;
             $data = JSON->new->utf8(1)->decode($json);
             last;
