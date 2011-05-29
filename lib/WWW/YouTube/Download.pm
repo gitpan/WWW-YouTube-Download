@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 use Carp ();
 use URI ();
@@ -113,7 +113,7 @@ sub prepare_download {
         title         => $title,
         video_url_map => $video_url_map,
         fmt           => $hq_data->{fmt},
-        fmt_lsit      => $fmt_list,
+        fmt_list      => $fmt_list,
         suffix        => $hq_data->{suffix},
     };
 }
@@ -121,9 +121,7 @@ sub prepare_download {
 sub _fetch_title {
     my ($self, $content) = @_;
 
-    my ($title) = $content =~ m|<title>(.+)</title>|ims or return;
-    $title =~ s/[\r\n]|^\s+|\s+$//g;
-    $title = (split /\s+-\s+/, $title, 2)[1];
+    my ($title) = $content =~ /<meta name="title" content="(.+?)">/ or return;
     return decode_entities($title);
 }
 
