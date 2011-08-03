@@ -15,7 +15,7 @@ inc/Module/Install/WriteAll.pm
 inc/Test/More.pm
 lib/WWW/YouTube/Download.pm
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
