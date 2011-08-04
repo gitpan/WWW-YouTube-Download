@@ -19,9 +19,6 @@ MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
-t/01_data.txt
-t/01_simple.t
-t/internal/video_id.t
 t/private/video_id.t
 xt/01_podspell.t
 xt/02_perlcritic.t
