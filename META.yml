@@ -22,9 +22,8 @@ requires:
   HTML::Entities: 0
   JSON: 0
   LWP: 0
-  URI::Escape: 0
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.29
+version: 0.30
