@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 use Carp ();
 use URI ();
@@ -213,10 +213,10 @@ sub ua {
 
 sub _suffix {
     my $fmt = shift;
-    return $fmt =~ /43|44|45/ ? '.webm'
-         : $fmt =~ /18|22|37/ ? '.mp4'
-         : $fmt =~ /13|17/    ? '.3gp'
-         :                      '.flv'
+    return $fmt =~ /43|44|45/    ? '.webm'
+         : $fmt =~ /18|22|37|38/ ? '.mp4'
+         : $fmt =~ /13|17/       ? '.3gp'
+         :                         '.flv'
     ;
 }
 
