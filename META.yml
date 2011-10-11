@@ -4,10 +4,11 @@ author:
   - 'Yuji Shimada'
 build_requires:
   ExtUtils::MakeMaker: 6.42
+  Test::More: 0.96
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 1.01'
+generated_by: 'Module::Install version 1.02'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -23,8 +24,10 @@ requires:
   JSON: 0
   LWP::UserAgent: 0
   URI: 0
+  URI::QueryParam: 0
+  XML::TreePP: 0
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.32
+version: 0.33

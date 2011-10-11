@@ -1,0 +1,189 @@
+#!perl
+use strict;
+use warnings;
+use Getopt::Long qw(GetOptions :config bundling);
+use Pod::Usage qw(pod2usage);
+use WWW::YouTube::Download;
+use Encode qw(find_encoding decode_utf8);
+use Time::HiRes;
+use Term::ANSIColor qw(colored);
+
+my $encode    = 'utf8';
+my $overwrite = 0;
+my $verbose   = 1;
+my $interval  = 1; # sec
+GetOptions(
+    'o|output=s'   => \my $output,
+    'F|fmt=i',     => \my $fmt,
+    'v|verbose!'   => \$verbose,
+    'i|interval=i' => \$interval,
+    'e|encode=s'   => \$encode,
+    'f|force!'     => \$overwrite,
+    'q|quiet!'     => sub { $verbose = 0 },
+    'h|help'       => sub { help() },
+    'm|man'        => sub { pod2usage(-verbose => 2) },
+    'V|version!'   => sub { show_version() },
+) or help();
+challeng_load_argv_from_fh() unless @ARGV;
+help() unless @ARGV;
+
+my $encoder = find_encoding($encode) or throw("not supported encoding: $encode");
+$output = $encoder->decode($output) if $output;
+
+my $client = WWW::YouTube::Download->new;
+
+main: {
+    while (@ARGV) {
+        my $video_id = shift @ARGV;
+        my $meta_data = $client->prepare_download($video_id);
+        chatty("--> Working on $meta_data->{video_id}");
+        if ($fmt && !$client->_is_supported_fmt($video_id, $fmt)) {
+            throw("[$meta_data->{video_id}] this video has not supported fmt: $fmt");
+        }
+
+        $output = $client->_foramt_file_name($output, {
+            video_id => $meta_data->{video_id},
+            title    => decode_utf8($meta_data->{title}),
+            fmt      => $fmt || $meta_data->{fmt},
+            suffix   => $client->_suffix($fmt),
+        });
+        $output = $encoder->encode($output, sub { sprintf 'U+%x', shift });
+
+        eval {
+            $client->download($video_id, {
+                file_name => $output,
+                fmt       => $fmt,
+                verbose   => $verbose,
+                overwrite => $overwrite,
+            });
+        };
+        throw("[$meta_data->{video_id}] $@") if $@;
+        chatty(colored ['green'], 'Download successfully!');
+
+        Time::HiRes::sleep($interval) if @ARGV;
+    }
+}
+
+exit;
+
+sub challeng_load_argv_from_fh {
+    return unless $0 ne '-' && !-t STDIN;
+
+    # e.g. $ youtube-dl.pl < video_list
+    while (defined (my $line = <STDIN>)) {
+        chomp $line;
+        $line =~ s/#.*$//;       # comment
+        $line =~ s/^\s+|\s+$//g; # trim spaces
+        push @ARGV, $line;
+    }
+}
+
+sub throw {
+    die colored(['red'], 'ERROR: ', @_), "\n";
+}
+
+sub chatty {
+    print @_, "\n";
+}
+
+sub show_version {
+    print "youtube-download.pl (WWW::YouTube::Download) version $WWW::YouTube::Download::VERSION\n";
+    exit;
+}
+
+sub help {
+    print << 'HELP';
+Usage:
+    youtube-dl.pl [options] video_id_or_video_url ...
+
+Options:
+    -o, --output        Output filename, supports `{$value}` format
+    -e, --encode        File system encoding (e.g. cp932)
+    -F, --fmt           Video quality (SEE ALSO wikipedia)
+    -f, --force         Force overwrite output file
+    -i, --interval      Download interval
+    -v, --verbose       Turns on chatty output (defult: enable)
+    -q, --quiet         Turns off progress
+    -h, --help          Display help
+    -m, --man           Display man page
+    -V, --version       Display version
+
+supported `{$value}` format are:
+    {video_id} / {title} / {fmt} / {suffix}
+
+    Example:
+        $ youtube-dl.pl -o "[{video_id}] {title}.{suffix}"
+
+HELP
+    exit 1;
+}
+
+__END__
+
+=head1 NAME
+
+youtube-download.pl - Download video(s) from YouTube
+
+=head1 SYNOPSIS
+
+  $ youtube-download.pl bT8yLWy4B5w
+  $ youtube-download.pl http://www.youtube.com/watch?v=bT8yLWy4B5w
+  $ youtube-download.pl < video_list_file
+
+=head1 OPTIONS
+
+=over
+
+=item -o, --output
+
+output filename, supports `{$value}` format (defult: {video_id}.{suffix})
+
+=item -i, --interval
+
+Download interval (defult: 1 (sec))
+
+=item -e, --encode
+
+File system encoding (default: utf8)
+
+=item -f, --force
+
+Force overwrite output file (defult: disabled)
+
+=item -F, --fmt
+
+Video quality (SEE ALSO wikipedia)
+
+=item -v, --verbose
+
+Truns on chatty output (defult: enableed)
+
+=item -q, --quiet
+
+Truns off the most output
+
+=item -h, --help
+
+Display help
+
+=item -m, --man
+
+Display help page
+
+=item -V, --version
+
+Display version
+
+=back
+
+=head2 supported `{$value}` format
+
+{video_id} / {title} / {fmt} / {suffix}
+
+  Example:
+  $ youtube-dl.pl -o "[{video_id}] {title}.{suffix}"
+
+=head1 AUTHOR
+
+Yuji Shiamda (xaicron)
+

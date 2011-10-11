@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 
 use Carp ();
 use URI ();
@@ -20,66 +20,88 @@ my $info     = 'http://www.youtube.com/get_video_info?video_id=';
 sub new {
     my $class = shift;
     my %args = @_;
-    $args{ua} = LWP::UserAgent->new unless exists $args{ua};
+    $args{ua} = LWP::UserAgent->new(
+        agent => __PACKAGE__.'/'.$VERSION,
+    ) unless exists $args{ua};
     bless \%args, $class;
 }
 
 for my $name (qw[video_id video_url title fmt fmt_list suffix]) {
     no strict 'refs';
     *{"get_$name"} = sub {
-        my $self = shift;
-        my $video_id = shift || Carp::croak "Usage: $self->get_$name(\$video_id|\$watch_url)";
-
+        use strict 'refs';
+        my ($self, $video_id) = @_;
+        Carp::croak "Usage: $self->get_$name(\$video_id|\$watch_url)" unless $video_id;
         my $data = $self->prepare_download($video_id);
         return $data->{$name};
     };
 }
 
 sub download {
-    my $self = shift;
-    my $video_id = shift || Carp::croak "Usage: $self->download('[video_id|video_url]')";
-    my $args = shift || {};
+    my ($self, $video_id, $args) = @_;
+    Carp::croak "Usage: $self->download('[video_id|video_url]')" unless $video_id;
+    $args ||= {};
 
     my $data = $self->prepare_download($video_id);
 
     my $fmt = $args->{fmt} || $data->{fmt} || DEFAULT_FMT;
+
     my $video_url = $data->{video_url_map}{$fmt}{url} || Carp::croak "this video has not supported fmt: $fmt";
-    my $file_name = $args->{file_name} || $data->{video_id} . _suffix($fmt);
+    my $file_name = $self->_foramt_file_name($args->{file_name}, {
+        video_id => $data->{video_id},
+        title    => $data->{title},
+        fmt      => $fmt,
+        suffix   => _suffix($fmt),
+    });
 
     $args->{cb} = $self->_default_cb({
         file_name => $file_name,
         verbose   => $args->{verbose},
+        overwrite => defined $args->{overwrite} ? $args->{overwrite} : 1,
     }) unless ref $args->{cb} eq 'CODE';
 
     my $res = $self->ua->get($video_url, ':content_cb' => $args->{cb});
-    Carp::croak '!! $video_id download failed: ', $res->status_line if $res->is_error;
+    Carp::croak "!! $video_id download failed: ", $res->status_line if $res->is_error;
+}
+
+sub _foramt_file_name {
+    my ($self, $file_name, $data) = @_;
+    return "$data->{video_id}.$data->{suffix}" unless defined $file_name;
+    $file_name =~ s#{([^}]+)}#$data->{$1} || "{$1}"#eg;
+    return $file_name;
+}
+
+sub _is_supported_fmt {
+    my ($self, $video_id, $fmt) = @_;
+    my $data = $self->prepare_download($video_id);
+    $data->{video_url_map}{$fmt}{url} ? 1 : 0;
 }
 
 sub _default_cb {
-    my $self = shift;
-    my $args = shift;
+    my ($self, $args) = @_;
+    my ($file, $verbose, $overwrite) = @$args{qw/file_name verbose overwrite/};
 
-    open my $wfh, '>', $args->{file_name} or die $args->{file_name}, " $!";
+    Carp::croak "file exists! $file" if -f $file and !$overwrite;
+    open my $wfh, '>', $file or die $file, " $!";
     binmode $wfh;
+
+    print "Downloading for `$file`\n" if $verbose;
     return sub {
         my ($chunk, $res, $proto) = @_;
         print $wfh $chunk; # write file
 
-        if ($self->{verbose} || $args->{verbose}) {
+        if ($verbose || $self->{verbose}) {
             my $size = tell $wfh;
-            if (my $total = $res->header('Content-Length')) {
-                printf "%d/%d (%f%%)\r", $size, $total, $size / $total * 100;
-            }
-            else {
-                printf "%d/Unknown bytes\r", $size;
-            }
+            my $total = $res->header('Content-Length');
+            printf "%d/%d (%.2f%%)\r", $size, $total, $size / $total * 100;
+            print "\n" if $total == $size;
         }
     };
 }
 
 sub prepare_download {
-    my $self = shift;
-    my $video_id = shift || Carp::croak "Usage: $self->prepare_download('[video_id|watch_url]')";
+    my ($self, $video_id) = @_;
+    Carp::croak "Usage: $self->prepare_download('[video_id|watch_url]')" unless $video_id;
     $video_id = _video_id($video_id);
 
     return $self->{cache}{$video_id} if ref $self->{cache}{$video_id} eq 'HASH';
@@ -205,18 +227,18 @@ sub _parse_stream_map {
 }
 
 sub ua {
-    my $self = shift;
-    my $ua = shift || return $self->{ua};
+    my ($self, $ua) = @_;
+    return $self->{ua} unless $ua;
     Carp::croak "Usage: $self->ua(\$LWP_LIKE_OBJECT)" unless eval { $ua->isa('LWP::UserAgent') };
     $self->{ua} = $ua;
 }
 
 sub _suffix {
     my $fmt = shift;
-    return $fmt =~ /43|44|45/    ? '.webm'
-         : $fmt =~ /18|22|37|38/ ? '.mp4'
-         : $fmt =~ /13|17/       ? '.3gp'
-         :                         '.flv'
+    return $fmt =~ /43|44|45/    ? 'webm'
+         : $fmt =~ /18|22|37|38/ ? 'mp4'
+         : $fmt =~ /13|17/       ? '3gp'
+         :                         'flv'
     ;
 }
 
@@ -256,6 +278,7 @@ WWW::YouTube::Download - Very simply YouTube video download interface.
   my $video_url = $client->get_video_url($video_id);
   my $title     = $client->get_title($video_id);     # maybe encoded utf8 string.
   my $fmt       = $client->get_fmt($video_id);       # maybe highest quality.
+  my $suffix    = $client->get_suffix($video_id);    # maybe highest quality file suffix
 
 =head1 DESCRIPTION
 
@@ -269,7 +292,7 @@ WWW::YouTube::Download is a download video from YouTube.
 
   $client = WWW::YouTube::Download->new;
 
-Creates a WWW::YouTube::Donwload instance.
+Creates a WWW::YouTube::Download instance.
 
 =item B<download($video_id [, \%args])>
 
@@ -279,12 +302,22 @@ Creates a WWW::YouTube::Donwload instance.
       file_name => 'sample.mp4', # save file name
   });
   $client->download($video_id, {
+      file_name => '{title}.{suffix}', # maybe `video_title.mp4`
+  });
+  $client->download($video_id, {
       cb => \&callback,
   });
 
 Download the video file.
 The first parameter is passed to YouTube video url.
 B<\&callback> details SEE ALSO L<LWP::UserAgent> ':content_cb'.
+
+C<< file_name >> supported format:
+
+  {video_id}
+  {title}
+  {fmt}
+  {suffix}
 
 =item B<ua([$ua])>
 
