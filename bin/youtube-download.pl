@@ -8,6 +8,8 @@ use Encode qw(find_encoding decode_utf8);
 use Time::HiRes;
 use Term::ANSIColor qw(colored);
 
+$ENV{ANSI_COLORS_DISABLED} = 1 if $^O eq 'MSWin32';
+
 my $encode    = 'utf8';
 my $overwrite = 0;
 my $verbose   = 1;
@@ -41,11 +43,9 @@ main: {
             throw("[$meta_data->{video_id}] this video has not supported fmt: $fmt");
         }
 
+        # multibyte fixes
         $output = $client->_foramt_file_name($output, {
-            video_id => $meta_data->{video_id},
-            title    => decode_utf8($meta_data->{title}),
-            fmt      => $fmt || $meta_data->{fmt},
-            suffix   => $client->_suffix($fmt),
+            title => decode_utf8($meta_data->{title}),
         });
         $output = $encoder->encode($output, sub { sprintf 'U+%x', shift });
 
@@ -178,7 +178,7 @@ Display version
 
 =head2 supported `{$value}` format
 
-{video_id} / {title} / {fmt} / {suffix}
+{video_id} / {title} / {fmt} / {suffix} / {resolution}
 
   Example:
   $ youtube-dl.pl -o "[{video_id}] {title}.{suffix}"
