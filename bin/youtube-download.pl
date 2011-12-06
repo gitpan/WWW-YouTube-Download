@@ -44,16 +44,17 @@ main: {
         }
 
         # multibyte fixes
-        $output = $client->_foramt_file_name($output, {
+        my $filename = $client->_foramt_filename($output, {
             video_id => $meta_data->{video_id},
             title    => decode_utf8($meta_data->{title}),
             suffix   => $meta_data->{suffix},
         });
-        $output = $encoder->encode($output, sub { sprintf 'U+%x', shift });
+        $filename = filename_normalize($filename);
+        $filename = $encoder->encode($filename, sub { sprintf 'U+%x', shift });
 
         eval {
             $client->download($video_id, {
-                file_name => $output,
+                filename  => $filename,
                 fmt       => $fmt,
                 verbose   => $verbose,
                 overwrite => $overwrite,
@@ -71,13 +72,22 @@ exit;
 sub challeng_load_argv_from_fh {
     return unless $0 ne '-' && !-t STDIN;
 
-    # e.g. $ youtube-dl.pl < video_list
+    # e.g. $ youtube-download.pl < video_list
     while (defined (my $line = <STDIN>)) {
         chomp $line;
         $line =~ s/#.*$//;       # comment
         $line =~ s/^\s+|\s+$//g; # trim spaces
         push @ARGV, $line;
     }
+}
+
+sub filename_normalize {
+    my $filename = shift;
+    $filename =~ s#[[:cntrl:]]##smg;          # remove all control characters
+    $filename =~ s#^\s+|\s+$##g;              # trim spaces
+    $filename =~ s#^\.+##;                    # remove multiple leading dots
+    $filename =~ tr#"/\\:*?<>|#'\-\-\-_____#; # NTFS and FAT unsupported characters
+    return $filename;
 }
 
 sub throw {
@@ -96,7 +106,7 @@ sub show_version {
 sub help {
     print << 'HELP';
 Usage:
-    youtube-dl.pl [options] video_id_or_video_url ...
+    youtube-download.pl [options] video_id_or_video_url ...
 
 Options:
     -o, --output        Output filename, supports `{$value}` format
@@ -114,7 +124,7 @@ supported `{$value}` format are:
     {video_id} / {title} / {fmt} / {suffix}
 
     Example:
-        $ youtube-dl.pl -o "[{video_id}] {title}.{suffix}"
+        $ youtube-download.pl -o "[{video_id}] {title}.{suffix}"
 
 HELP
     exit 1;
@@ -183,7 +193,7 @@ Display version
 {video_id} / {title} / {fmt} / {suffix} / {resolution}
 
   Example:
-  $ youtube-dl.pl -o "[{video_id}] {title}.{suffix}"
+  $ youtube-download.pl -o "[{video_id}] {title}.{suffix}"
 
 =head1 AUTHOR
 
