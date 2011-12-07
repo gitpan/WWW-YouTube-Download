@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 
 use Carp ();
 use URI ();
@@ -48,7 +48,7 @@ sub download {
 
     my $video_url = $data->{video_url_map}{$fmt}{url} || Carp::croak "this video has not supported fmt: $fmt";
     $args->{filename} ||= $args->{file_name};
-    my $filename = $self->_foramt_filename($args->{filename}, {
+    my $filename = $self->_format_filename($args->{filename}, {
         video_id   => $data->{video_id},
         title      => $data->{title},
         fmt        => $fmt,
@@ -66,7 +66,7 @@ sub download {
     Carp::croak "!! $video_id download failed: ", $res->status_line if $res->is_error;
 }
 
-sub _foramt_filename {
+sub _format_filename {
     my ($self, $filename, $data) = @_;
     return "$data->{video_id}.$data->{suffix}" unless defined $filename;
     $filename =~ s#{([^}]+)}#$data->{$1} || "{$1}"#eg;
@@ -82,7 +82,6 @@ sub _is_supported_fmt {
 sub _default_cb {
     my ($self, $args) = @_;
     my ($file, $verbose, $overwrite) = @$args{qw/filename verbose overwrite/};
-    $file ||= $args->{file_name};
 
     Carp::croak "file exists! $file" if -f $file and !$overwrite;
     open my $wfh, '>', $file or Carp::croak $file, " $!";
