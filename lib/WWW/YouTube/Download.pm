@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 use Carp ();
 use URI ();
@@ -268,7 +268,7 @@ __END__
 
 =head1 NAME
 
-WWW::YouTube::Download - Very simply YouTube video download interface.
+WWW::YouTube::Download - Very simple YouTube video download interface
 
 =head1 SYNOPSIS
 

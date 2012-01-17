@@ -1,5 +1,5 @@
 ---
-abstract: 'Very simply YouTube video download interface.'
+abstract: 'Very simple YouTube video download interface'
 author:
   - 'Yuji Shimada'
 build_requires:
@@ -24,6 +24,7 @@ requires:
   HTML::Entities: 0
   JSON: 0
   LWP::UserAgent: 0
+  Term::ANSIColor: 0
   URI: 0
   URI::QueryParam: 0
   XML::TreePP: 0
@@ -31,4 +32,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.38
+version: 0.39

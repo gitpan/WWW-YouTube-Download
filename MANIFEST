@@ -1,5 +1,5 @@
-bin/youtube-download.pl
-bin/youtube-playlists.pl
+bin/youtube-download
+bin/youtube-playlists
 Changes
 eg/cb.pl
 eg/parallel.pl
