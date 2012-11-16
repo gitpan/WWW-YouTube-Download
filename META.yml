@@ -32,4 +32,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.41
+version: 0.42
