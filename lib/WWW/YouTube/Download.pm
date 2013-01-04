@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 use Carp ();
 use URI ();
@@ -368,7 +368,7 @@ Sets and gets LWP::UserAgent object.
 
 =head1 AUTHOR
 
-Yuji Shimada
+xaicron E<lt>xaicron {@} cpan.orgE<gt>
 
 =head1 CONTRIBUTORS
 

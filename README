@@ -1,27 +1,81 @@
-This is Perl module WWW::YouTube::Download.
+NAME
+    WWW::YouTube::Download - Very simple YouTube video download interface
 
-INSTALLATION
+SYNOPSIS
+      use WWW::YouTube::Download;
+  
+      my $client = WWW::YouTube::Download->new;
+      $client->download($video_id);
+  
+      my $video_url = $client->get_video_url($video_id);
+      my $title     = $client->get_title($video_id);     # maybe encoded utf8 string.
+      my $fmt       = $client->get_fmt($video_id);       # maybe highest quality.
+      my $suffix    = $client->get_suffix($video_id);    # maybe highest quality file suffix
 
-WWW::YouTube::Download installation is straightforward. If your CPAN shell is set up,
-you should just be able to do
+DESCRIPTION
+    WWW::YouTube::Download is a download video from YouTube.
 
-    % cpan WWW::YouTube::Download
+METHODS
+    new()
+          $client = WWW::YouTube::Download->new;
 
-Download it, unpack it, then build it as per the usual:
+        Creates a WWW::YouTube::Download instance.
 
-    % perl Makefile.PL
-    % make && make test
+    download($video_id [, \%args])
+          $client->download($video_id);
+          $client->download($video_id, {
+              fmt      => 37,
+              filename => 'sample.mp4', # save file name
+          });
+          $client->download($video_id, {
+              filename => '{title}.{suffix}', # maybe `video_title.mp4`
+          });
+          $client->download($video_id, {
+              cb => \&callback,
+          });
 
-Then install it:
+        Download the video file. The first parameter is passed to YouTube
+        video url. \&callback details SEE ALSO LWP::UserAgent ':content_cb'.
 
-    % make install
+        "file_name" is DEPRECATED!!
 
-DOCUMENTATION
+        "filename" supported format:
 
-WWW::YouTube::Download documentation is available as in POD. So you can do:
+          {video_id}
+          {title}
+          {fmt}
+          {suffix}
+          {resolution}
 
-    % perldoc WWW::YouTube::Download
+    playback_url($video_id, [, \%args])
+          $client->playback_url($video_id);
+          $client->playback_url($video_id, { fmt => 37 });
 
-to read the documentation online with your favorite pager.
+        Return playback URL of the video. This is direct link to the movie
+        file. Function supports only "fmt" option.
 
-Yuji Shimada
+    ua([$ua])
+          $self->ua->agent();
+          $self->ua($LWP_LIKE_OBJECT);
+
+        Sets and gets LWP::UserAgent object.
+
+    get_video_url($video_id)
+    get_title($video_id)
+    get_fmt($video_id)
+    get_fmt_list($video_id)
+    get_suffix($video_id)
+
+AUTHOR
+    xaicron <xaicron {@} cpan.org>
+
+CONTRIBUTORS
+    yusukebe
+
+SEE ALSO
+    WWW::NicoVideo::Download
+
+LICENSE
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+

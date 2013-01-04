@@ -1,23 +1,13 @@
 bin/youtube-download
 bin/youtube-playlists
+Build.PL
 Changes
 eg/cb.pl
 eg/parallel.pl
-inc/Module/Install.pm
-inc/Module/Install/AuthorTests.pm
-inc/Module/Install/Base.pm
-inc/Module/Install/Can.pm
-inc/Module/Install/Fetch.pm
-inc/Module/Install/Makefile.pm
-inc/Module/Install/Metadata.pm
-inc/Module/Install/Repository.pm
-inc/Module/Install/Scripts.pm
-inc/Module/Install/Win32.pm
-inc/Module/Install/WriteAll.pm
 lib/WWW/YouTube/Download.pm
 LICENSE
-Makefile.PL
 MANIFEST			This list of files
+META.json
 META.yml
 README
 t/00_compile.t
@@ -26,4 +16,7 @@ xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t
 xt/05_script-shebang.t
+xt/06_minimum_version.t
+xt/07_cpan_meta.t
+xt/08_meta_author.t
 xt/perlcriticrc

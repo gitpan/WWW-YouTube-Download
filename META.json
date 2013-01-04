@@ -1,0 +1,60 @@
+{
+   "abstract" : "Very simple YouTube video download interface",
+   "author" : [
+      "xaicron E<lt>xaicron {@} cpan.orgE<gt>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "WWW-YouTube-Download",
+   "no_index" : {
+      "directory" : [
+         "inc",
+         "t",
+         "xt"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : "0.98"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.38"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "HTML::Entities" : "0",
+            "JSON" : "0",
+            "LWP::UserAgent" : "0",
+            "Term::ANSIColor" : "0",
+            "URI" : "0",
+            "URI::QueryParam" : "0",
+            "XML::TreePP" : "0",
+            "perl" : "5.008001"
+         }
+      }
+   },
+   "provides" : {
+      "WWW::YouTube::Download" : {
+         "file" : "lib/WWW/YouTube/Download.pm",
+         "version" : "0.43"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "0.43"
+}
