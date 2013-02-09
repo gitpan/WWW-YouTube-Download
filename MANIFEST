@@ -12,6 +12,7 @@ META.yml
 README
 t/00_compile.t
 t/private/video_id.t
+t/private/video_user.t
 xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t

@@ -43,6 +43,7 @@ METHODS
 
           {video_id}
           {title}
+          {user}
           {fmt}
           {suffix}
           {resolution}
@@ -62,6 +63,7 @@ METHODS
 
     get_video_url($video_id)
     get_title($video_id)
+    get_user($video_id)
     get_fmt($video_id)
     get_fmt_list($video_id)
     get_suffix($video_id)
