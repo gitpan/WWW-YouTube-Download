@@ -3,6 +3,7 @@ bin/youtube-playlists
 Build.PL
 Changes
 eg/cb.pl
+eg/menu.pl
 eg/parallel.pl
 lib/WWW/YouTube/Download.pm
 LICENSE

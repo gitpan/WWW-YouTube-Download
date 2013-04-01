@@ -35,18 +35,35 @@ METHODS
           });
 
         Download the video file. The first parameter is passed to YouTube
-        video url. \&callback details SEE ALSO LWP::UserAgent ':content_cb'.
+        video url.
 
-        "file_name" is DEPRECATED!!
+        Allowed arguments:
 
-        "filename" supported format:
+        "cb"
+            Set a callback subroutine, SEE LWP::UserAgent ':content_cb' for
+            details.
 
-          {video_id}
-          {title}
-          {user}
-          {fmt}
-          {suffix}
-          {resolution}
+        "filename"
+            Set the filename, possibly using placeholders to be filled with
+            information gathered about the video.
+
+            "filename" supported format placeholders:
+
+              {video_id}
+              {title}
+              {user}
+              {fmt}
+              {suffix}
+              {resolution}
+
+            Output filename is set to "{video_id}.{suffix}" by default.
+
+        "file_name"
+            DEPRECATED alternative for "filename".
+
+        "fmt"
+            set the format to download. Defaults to the best video quality
+            (inferred by the available resolutions).
 
     playback_url($video_id, [, \%args])
           $client->playback_url($video_id);
@@ -54,6 +71,56 @@ METHODS
 
         Return playback URL of the video. This is direct link to the movie
         file. Function supports only "fmt" option.
+
+    prepare_download($video_id)
+        Gather data about the video. A hash reference is returned, with the
+        following keys:
+
+        "fmt"
+            the default, suggested format. It is inferred by selecting the
+            alternative with the highest resolution.
+
+        "fmt_list"
+            the list of available formats, as an array reference.
+
+        "suffix"
+            the filename extension associated to the default format (see
+            "fmt" above).
+
+        "title"
+            the title of the video
+
+        "user"
+            the YouTube user owning the video
+
+        "video_id"
+            the video identifier
+
+        "video_url"
+            the URL of the video associated to the default format (see "fmt"
+            above).
+
+        "video_url_map"
+            an hash reference containing details about all available
+            formats.
+
+        The "video_url_map" has one key/value pair for each available
+        format, where the key is the format identifier (can be used as "fmt"
+        parameter for "download", for example) and the value is a hash
+        reference with the following data:
+
+        "fmt"
+            the format specifier, that can be passed to "download"
+
+        "resolution"
+            the resolution as *width*x*height*
+
+        "suffix"
+            the suffix, providing a hint about the video format (e.g. webm,
+            flv, ...)
+
+        "url"
+            the URL where the video can be found
 
     ua([$ua])
           $self->ua->agent();
