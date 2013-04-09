@@ -1,23 +1,24 @@
 {
    "abstract" : "Very simple YouTube video download interface",
    "author" : [
-      "xaicron E<lt>xaicron {@} cpan.orgE<gt>"
+      "xaicron <xaicron {@} cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630",
-   "license" : [
-      "perl_5"
-   ],
+   "generated_by" : "Minilla/v0.0.53",
+   "license" : "perl_5",
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "WWW-YouTube-Download",
+   "name" : "www-youtube-download",
    "no_index" : {
       "directory" : [
-         "inc",
          "t",
-         "xt"
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples"
       ]
    },
    "prereqs" : {
@@ -28,7 +29,18 @@
       },
       "configure" : {
          "requires" : {
+            "CPAN::Meta" : "0",
+            "CPAN::Meta::Prereqs" : "0",
             "Module::Build" : "0.38"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Pod::Wordlist::hanekomu" : "0",
+            "Test::CPAN::Meta" : "0",
+            "Test::MinimumVersion" : "0.10108",
+            "Test::Pod" : "1.41",
+            "Test::Spelling" : "0"
          }
       },
       "runtime" : {
@@ -47,14 +59,28 @@
    "provides" : {
       "WWW::YouTube::Download" : {
          "file" : "lib/WWW/YouTube/Download.pm",
-         "version" : "0.47"
+         "version" : "0.48"
       }
    },
    "release_status" : "stable",
    "resources" : {
-      "license" : [
-         "http://dev.perl.org/licenses/"
-      ]
+      "bugtracker" : {
+         "web" : "https://github.com/xaicron/p5-www-youtube-download/issues"
+      },
+      "homepage" : "https://github.com/xaicron/p5-www-youtube-download",
+      "repository" : {
+         "url" : "git://github.com/xaicron/p5-www-youtube-download",
+         "web" : "https://github.com/xaicron/p5-www-youtube-download"
+      }
    },
-   "version" : "0.47"
+   "version" : "0.48",
+   "x_contributors" : [
+      "akiym <akiyama@8ant.org>",
+      "Maurice <mauricemengel@gmail.com>",
+      "ks <ks-for-git@live.jp>",
+      "isync <o.zucker@web.de>",
+      "Yusuke Wada <yusuke@kamawada.com>",
+      "Flavio Poletti <flavio@polettix.it>",
+      "xaicron <xaicron@gmail.com>"
+   ]
 }

@@ -1,27 +1,32 @@
 ---
 abstract: 'Very simple YouTube video download interface'
 author:
-  - 'xaicron E<lt>xaicron {@} cpan.orgE<gt>'
+  - 'xaicron <xaicron {@} cpan.org>'
 build_requires:
   Test::More: 0.98
 configure_requires:
+  CPAN::Meta: 0
+  CPAN::Meta::Prereqs: 0
   Module::Build: 0.38
 dynamic_config: 0
-generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630'
+generated_by: 'Minilla/v0.0.53, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: WWW-YouTube-Download
+name: www-youtube-download
 no_index:
   directory:
-    - inc
     - t
     - xt
+    - inc
+    - share
+    - eg
+    - examples
 provides:
   WWW::YouTube::Download:
     file: lib/WWW/YouTube/Download.pm
-    version: 0.47
+    version: 0.48
 requires:
   HTML::Entities: 0
   JSON: 0
@@ -32,5 +37,15 @@ requires:
   XML::TreePP: 0
   perl: 5.008001
 resources:
-  license: http://dev.perl.org/licenses/
-version: 0.47
+  bugtracker: https://github.com/xaicron/p5-www-youtube-download/issues
+  homepage: https://github.com/xaicron/p5-www-youtube-download
+  repository: git://github.com/xaicron/p5-www-youtube-download
+version: 0.48
+x_contributors:
+  - 'akiym <akiyama@8ant.org>'
+  - 'Maurice <mauricemengel@gmail.com>'
+  - 'ks <ks-for-git@live.jp>'
+  - 'isync <o.zucker@web.de>'
+  - 'Yusuke Wada <yusuke@kamawada.com>'
+  - 'Flavio Poletti <flavio@polettix.it>'
+  - 'xaicron <xaicron@gmail.com>'
