@@ -21,7 +21,7 @@ my $builder = Module::Build->new(
     },
 
     no_index    => { 'directory' => [ 'inc' ] },
-    name        => 'www-youtube-download',
+    name        => 'WWW-YouTube-Download',
     module_name => 'WWW::YouTube::Download',
 
     script_files => [glob('script/*'), glob('bin/*')],

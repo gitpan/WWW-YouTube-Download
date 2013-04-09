@@ -14,7 +14,7 @@ license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: www-youtube-download
+name: WWW-YouTube-Download
 no_index:
   directory:
     - t
@@ -26,7 +26,7 @@ no_index:
 provides:
   WWW::YouTube::Download:
     file: lib/WWW/YouTube/Download.pm
-    version: 0.48
+    version: 0.49
 requires:
   HTML::Entities: 0
   JSON: 0
@@ -40,7 +40,7 @@ resources:
   bugtracker: https://github.com/xaicron/p5-www-youtube-download/issues
   homepage: https://github.com/xaicron/p5-www-youtube-download
   repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.48
+version: 0.49
 x_contributors:
   - 'akiym <akiyama@8ant.org>'
   - 'Maurice <mauricemengel@gmail.com>'

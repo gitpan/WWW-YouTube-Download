@@ -10,7 +10,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "www-youtube-download",
+   "name" : "WWW-YouTube-Download",
    "no_index" : {
       "directory" : [
          "t",
@@ -59,7 +59,7 @@
    "provides" : {
       "WWW::YouTube::Download" : {
          "file" : "lib/WWW/YouTube/Download.pm",
-         "version" : "0.48"
+         "version" : "0.49"
       }
    },
    "release_status" : "stable",
@@ -73,7 +73,7 @@
          "web" : "https://github.com/xaicron/p5-www-youtube-download"
       }
    },
-   "version" : "0.48",
+   "version" : "0.49",
    "x_contributors" : [
       "akiym <akiyama@8ant.org>",
       "Maurice <mauricemengel@gmail.com>",
