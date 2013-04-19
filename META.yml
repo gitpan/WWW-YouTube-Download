@@ -23,10 +23,11 @@ no_index:
     - share
     - eg
     - examples
+    - author
 provides:
   WWW::YouTube::Download:
     file: lib/WWW/YouTube/Download.pm
-    version: 0.49
+    version: 0.50
 requires:
   HTML::Entities: 0
   JSON: 0
@@ -39,8 +40,8 @@ requires:
 resources:
   bugtracker: https://github.com/xaicron/p5-www-youtube-download/issues
   homepage: https://github.com/xaicron/p5-www-youtube-download
-  repository: git://github.com/xaicron/p5-www-youtube-download
-version: 0.49
+  repository: git://github.com/xaicron/p5-www-youtube-download.git
+version: 0.50
 x_contributors:
   - 'akiym <akiyama@8ant.org>'
   - 'Maurice <mauricemengel@gmail.com>'

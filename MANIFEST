@@ -1,4 +1,3 @@
-.gitignore
 Build.PL
 Changes
 LICENSE
@@ -11,6 +10,7 @@ eg/cb.pl
 eg/menu.pl
 eg/parallel.pl
 lib/WWW/YouTube/Download.pm
+minil.toml
 t/00_compile.t
 t/private/video_id.t
 t/private/video_user.t
@@ -20,8 +20,5 @@ xt/06_minimum_version.t
 xt/07_cpan_meta.t
 xt/08_meta_author.t
 xt/perlcriticrc
-Build.PL
-LICENSE
-META.json
 META.yml
 MANIFEST
