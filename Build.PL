@@ -23,7 +23,6 @@ my %args = (
         'Module::Build' => 0.38,
     },
 
-    no_index    => { 'directory' => [ 'inc' ] },
     name        => 'WWW-YouTube-Download',
     module_name => 'WWW::YouTube::Download',
 

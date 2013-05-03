@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 use Carp ();
 use URI ();
@@ -271,7 +271,7 @@ sub _suffix {
 
 sub _video_id {
     my $stuff = shift;
-    if ($stuff =~ m{/.*?[?&;!]v=([^&#?=/;]+)}) {
+    if ($stuff =~ m{/.*?[?&;!](?:v|video_id)=([^&#?=/;]+)}) {
         return $1;
     }
     elsif ($stuff =~ m{/(?:e|v|embed)/([^&#?=/;]+)}) {
@@ -298,10 +298,10 @@ WWW::YouTube::Download - Very simple YouTube video download interface
 =head1 SYNOPSIS
 
   use WWW::YouTube::Download;
-  
+
   my $client = WWW::YouTube::Download->new;
   $client->download($video_id);
-  
+
   my $video_url = $client->get_video_url($video_id);
   my $title     = $client->get_title($video_id);     # maybe encoded utf8 string.
   my $fmt       = $client->get_fmt($video_id);       # maybe highest quality.
@@ -480,6 +480,10 @@ xaicron E<lt>xaicron {@} cpan.orgE<gt>
 =head1 CONTRIBUTORS
 
 yusukebe
+
+=head1 BUG REPORTING
+
+Plese use github issues: L<< https://github.com/xaicron/p5-www-youtube-download/issues >>.
 
 =head1 SEE ALSO
 
