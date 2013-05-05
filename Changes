@@ -1,5 +1,8 @@
 Revision history for Perl extension WWW::YouTube::Download
 
+0.52 2013-05-05T16:18:54Z
+        - Added playlist_id() and video_id() method (kucharskim++)
+
 0.51 2013-05-03T07:49:29Z
         - Support new url (mikolaj++)
 

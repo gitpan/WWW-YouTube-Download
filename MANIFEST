@@ -12,6 +12,7 @@ eg/parallel.pl
 lib/WWW/YouTube/Download.pm
 minil.toml
 t/00_compile.t
+t/private/playlist_id.t
 t/private/video_id.t
 t/private/video_user.t
 xt/02_perlcritic.t
