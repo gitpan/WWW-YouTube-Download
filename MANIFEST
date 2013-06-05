@@ -12,9 +12,10 @@ eg/parallel.pl
 lib/WWW/YouTube/Download.pm
 minil.toml
 t/00_compile.t
-t/private/playlist_id.t
-t/private/video_id.t
-t/private/video_user.t
+t/playlist_id.t
+t/user_id.t
+t/video_id.t
+t/video_user.t
 xt/02_perlcritic.t
 xt/05_script-shebang.t
 xt/06_minimum_version.t
