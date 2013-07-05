@@ -4,7 +4,7 @@
       "xaicron <xaicron {@} cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.4.6",
+   "generated_by" : "Minilla/v0.5.5",
    "license" : "perl_5",
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -59,7 +59,7 @@
    "provides" : {
       "WWW::YouTube::Download" : {
          "file" : "lib/WWW/YouTube/Download.pm",
-         "version" : "0.53"
+         "version" : "0.54"
       }
    },
    "release_status" : "stable",
@@ -69,11 +69,11 @@
       },
       "homepage" : "https://github.com/xaicron/p5-www-youtube-download",
       "repository" : {
-         "url" : "git://github.com/xaicron/p5-www-youtube-download.git",
+         "url" : "git://github.com/xaicron/p5-www-youtube-download",
          "web" : "https://github.com/xaicron/p5-www-youtube-download"
       }
    },
-   "version" : "0.53",
+   "version" : "0.54",
    "x_contributors" : [
       "akiym <akiyama@8ant.org>",
       "Maurice <mauricemengel@gmail.com>",

@@ -4,18 +4,20 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.53';
+our $VERSION = '0.54';
 
-use Carp ();
+use Carp qw(croak);
 use URI ();
 use LWP::UserAgent;
 use JSON;
 use HTML::Entities qw/decode_entities/;
+use HTTP::Request;
+
+$Carp::Intrenal{ (__PACKAGE__) }++;
 
 use constant DEFAULT_FMT => 18;
 
 my $base_url = 'http://www.youtube.com/watch?v=';
-my $info     = 'http://www.youtube.com/get_video_info?video_id=';
 
 sub new {
     my $class = shift;
@@ -32,7 +34,7 @@ for my $name (qw[video_id video_url title user fmt fmt_list suffix]) {
     *{"get_$name"} = sub {
         use strict 'refs';
         my ($self, $video_id) = @_;
-        Carp::croak "Usage: $self->get_$name(\$video_id|\$watch_url)" unless $video_id;
+        croak "Usage: $self->get_$name(\$video_id|\$watch_url)" unless $video_id;
         my $data = $self->prepare_download($video_id);
         return $data->{$name};
     };
@@ -40,26 +42,26 @@ for my $name (qw[video_id video_url title user fmt fmt_list suffix]) {
 
 sub playback_url {
     my ($self, $video_id, $args) = @_;
-    Carp::croak "Usage: $self->playback_url('[video_id|video_url]')" unless $video_id;
+    croak "Usage: $self->playback_url('[video_id|video_url]')" unless $video_id;
     $args ||= {};
 
     my $data = $self->prepare_download($video_id);
     my $fmt  = $args->{fmt} || $data->{fmt} || DEFAULT_FMT;
-    my $video_url = $data->{video_url_map}{$fmt}{url} || Carp::croak "this video has not supported fmt: $fmt";
+    my $video_url = $data->{video_url_map}{$fmt}{url} || croak "this video has not supported fmt: $fmt";
 
     return $video_url;
 }
 
 sub download {
     my ($self, $video_id, $args) = @_;
-    Carp::croak "Usage: $self->download('[video_id|video_url]')" unless $video_id;
+    croak "Usage: $self->download('[video_id|video_url]')" unless $video_id;
     $args ||= {};
 
     my $data = $self->prepare_download($video_id);
 
     my $fmt = $args->{fmt} || $data->{fmt} || DEFAULT_FMT;
 
-    my $video_url = $data->{video_url_map}{$fmt}{url} || Carp::croak "this video has not supported fmt: $fmt";
+    my $video_url = $data->{video_url_map}{$fmt}{url} || croak "this video has not supported fmt: $fmt";
     $args->{filename} ||= $args->{file_name};
     my $filename = $self->_format_filename($args->{filename}, {
         video_id   => $data->{video_id},
@@ -77,7 +79,7 @@ sub download {
     }) unless ref $args->{cb} eq 'CODE';
 
     my $res = $self->ua->get($video_url, ':content_cb' => $args->{cb});
-    Carp::croak "!! $video_id download failed: ", $res->status_line if $res->is_error;
+    croak "!! $video_id download failed: ", $res->status_line if $res->is_error;
 }
 
 sub _format_filename {
@@ -97,8 +99,8 @@ sub _default_cb {
     my ($self, $args) = @_;
     my ($file, $verbose, $overwrite) = @$args{qw/filename verbose overwrite/};
 
-    Carp::croak "file exists! $file" if -f $file and !$overwrite;
-    open my $wfh, '>', $file or Carp::croak $file, " $!";
+    croak "file exists! $file" if -f $file and !$overwrite;
+    open my $wfh, '>', $file or croak $file, " $!";
     binmode $wfh;
 
     print "Downloading `$file`\n" if $verbose;
@@ -117,12 +119,10 @@ sub _default_cb {
 
 sub prepare_download {
     my ($self, $video_id) = @_;
-    Carp::croak "Usage: $self->prepare_download('[video_id|watch_url]')" unless $video_id;
+    croak "Usage: $self->prepare_download('[video_id|watch_url]')" unless $video_id;
     $video_id = $self->video_id($video_id);
 
     return $self->{cache}{$video_id} if ref $self->{cache}{$video_id} eq 'HASH';
-
-    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
 
     my $content       = $self->_get_content($video_id);
     my $title         = $self->_fetch_title($content);
@@ -154,6 +154,7 @@ sub prepare_download {
         fmt           => $hq_data->{fmt},
         fmt_list      => $fmt_list,
         suffix        => $hq_data->{suffix},
+        resolution    => $hq_data->{resolution},
     };
 }
 
@@ -174,11 +175,9 @@ sub _fetch_user {
 sub _fetch_video_url_map {
     my ($self, $content) = @_;
 
-    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-
     my $args = $self->_get_args($content);
     unless ($args->{fmt_list} and $args->{url_encoded_fmt_stream_map}) {
-        Carp::croak 'failed to find video urls';
+        croak 'failed to find video urls';
     }
 
     my $fmt_map     = _parse_fmt_map($args->{fmt_list});
@@ -201,11 +200,15 @@ sub _fetch_video_url_map {
 sub _get_content {
     my ($self, $video_id) = @_;
 
-    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-
     my $url = "$base_url$video_id";
-    my $res = $self->ua->get($url);
-    Carp::croak "GET $url failed. status: ", $res->status_line if $res->is_error;
+
+    my $req = HTTP::Request->new;
+    $req->method('GET');
+    $req->uri($url);
+    $req->header('Accept-Language' => 'en-US');
+
+    my $res = $self->ua->request($req);
+    croak "GET $url failed. status: ", $res->status_line if $res->is_error;
 
     return $res->content;
 }
@@ -216,13 +219,16 @@ sub _get_args {
     my $data;
     for my $line (split "\n", $content) {
         next unless $line;
-        if ($line =~ /^.+ytplayer\.config\s*=\s*({.*})/) {
+        if ($line =~ /the uploader has not made this video available in your country/i) {
+            Carp::croak 'Video not available in your country.';
+        }
+        elsif ($line =~ /^.+ytplayer\.config\s*=\s*({.*})/) {
             $data = JSON->new->utf8(1)->decode($1);
             last;
         }
     }
 
-    Carp::croak 'failed to extract JSON data.' unless $data->{args};
+    croak 'failed to extract JSON data.' unless $data->{args};
 
     return $data->{args};
 }
@@ -238,6 +244,27 @@ sub _parse_fmt_map {
     return $fmt_map;
 }
 
+sub _swapelement {
+    my ($pos, @list) = @_;
+    my $first = $list[0];
+    my $other = $list[$pos % scalar(@list)];
+    $list[0] = $other;
+    $list[$pos] = $first;
+    return @list;
+}
+
+# taken from https://gist.github.com/anonymous/e40cb4a1ba3c71f16c05
+sub _sigdecode {
+    my $sig = shift;
+    Carp::croak 'Unable to find signature.' unless $sig;
+    my @sig = split(//, $sig);
+    @sig = reverse(_swapelement(52, @sig));
+    @sig = @sig[3..$#sig];
+    @sig = reverse(_swapelement(21, @sig));
+    @sig = @sig[3..$#sig];
+    return join('', reverse(@sig));
+}
+
 sub _parse_stream_map {
     my $param       = shift;
     my $fmt_url_map = {};
@@ -245,7 +272,7 @@ sub _parse_stream_map {
         my $uri = URI->new;
         $uri->query($stuff);
         my $query = +{ $uri->query_form };
-        my $sig = $query->{sig};
+        my $sig = $query->{sig} || _sigdecode($query->{s});
         my $url = $query->{url};
         $fmt_url_map->{$query->{itag}} = $url.'&signature='.$sig;
     }
@@ -256,7 +283,7 @@ sub _parse_stream_map {
 sub ua {
     my ($self, $ua) = @_;
     return $self->{ua} unless $ua;
-    Carp::croak "Usage: $self->ua(\$LWP_LIKE_OBJECT)" unless eval { $ua->isa('LWP::UserAgent') };
+    croak "Usage: $self->ua(\$LWP_LIKE_OBJECT)" unless eval { $ua->isa('LWP::UserAgent') };
     $self->{ua} = $ua;
 }
 

@@ -9,7 +9,7 @@ configure_requires:
   CPAN::Meta::Prereqs: 0
   Module::Build: 0.38
 dynamic_config: 0
-generated_by: 'Minilla/v0.4.6, CPAN::Meta::Converter version 2.131490'
+generated_by: 'Minilla/v0.5.5, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -27,7 +27,7 @@ no_index:
 provides:
   WWW::YouTube::Download:
     file: lib/WWW/YouTube/Download.pm
-    version: 0.53
+    version: 0.54
 requires:
   HTML::Entities: 0
   JSON: 0
@@ -40,8 +40,8 @@ requires:
 resources:
   bugtracker: https://github.com/xaicron/p5-www-youtube-download/issues
   homepage: https://github.com/xaicron/p5-www-youtube-download
-  repository: git://github.com/xaicron/p5-www-youtube-download.git
-version: 0.53
+  repository: git://github.com/xaicron/p5-www-youtube-download
+version: 0.54
 x_contributors:
   - 'akiym <akiyama@8ant.org>'
   - 'Maurice <mauricemengel@gmail.com>'
