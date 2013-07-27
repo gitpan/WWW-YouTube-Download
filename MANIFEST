@@ -13,6 +13,7 @@ lib/WWW/YouTube/Download.pm
 minil.toml
 t/00_compile.t
 t/playlist_id.t
+t/signatures.t
 t/user_id.t
 t/video_id.t
 t/video_user.t
